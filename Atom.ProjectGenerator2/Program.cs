@@ -29,22 +29,19 @@ namespace Atom.ProjectGenerator2
 
             var random = new Random();
             var project1 = random.NextProject(2, 3, 5);
-            //project1.Display();
+            var Time = project1.CreteTimetable();
             var t = new DateTime(2020, 2, 1);
             project1.RandomCompleteWorks(t);
-            //project1.Display();
             project1.ExportTimetable("test.txt");
-
 
             var BigProject = random.NextProject(2, 15, 200000);
             
             var q = new DateTime(2020, 2, 1);
-            BigProject.RandomCompleteWorks(t);
-            //BigProject.Display();
+            BigProject.RandomCompleteWorks(t);    
             BigProject.ExportTimetable("BigTable.txt");
 
             Runner r = new Runner();
-            r.Run(project1);
+            var newTimetable = r.Run(project1);
         }
     }
 }

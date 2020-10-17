@@ -32,14 +32,14 @@ namespace Atom.Models2
 
         public void CompleteWork(string Id, DateTime dateTime)
         {
-            for(var i=0; i< Groups.Count; i++)
+            for (var i = 0; i < Groups.Count; i++)
             {
-                var work = Groups[i].Works.SingleOrDefault(x=>x.Id == Id);
+                var work = Groups[i].Works.SingleOrDefault(x => x.Id == Id);
                 work.Finish = dateTime;
             }
         }
 
-    
+
 
         public void RandomCompleteWorks(DateTime dateTime)
         {
@@ -48,14 +48,14 @@ namespace Atom.Models2
             {
                 for (var j = 0; j < Groups[i].Works.Count; j++)
                 {
-                    if(Groups[i].Works[j].Start + new TimeSpan((int)Groups[i].Works[j].Duration,0,0,0) < dateTime)
+                    if (Groups[i].Works[j].Start + new TimeSpan((int)Groups[i].Works[j].Duration, 0, 0, 0) < dateTime)
                     {
                         var ww = random.Next(0, 2);
                         if (ww == 1)
                         {
                             Groups[i].Works[j].Finish = Groups[i].Works[j].Start + new TimeSpan((int)Groups[i].Works[j].Duration, 0, 0, 0);
                         }
-                    }                  
+                    }
                 }
             }
         }
@@ -64,10 +64,10 @@ namespace Atom.Models2
         {
             _date = date;
             var AllWorks = Works;
-            for (var i=0; i<works.Count; i++)
+            for (var i = 0; i < works.Count; i++)
             {
-                var item = AllWorks.SingleOrDefault(x=>x.Id == works[i].IdWork);
-                if(item != null)
+                var item = AllWorks.SingleOrDefault(x => x.Id == works[i].IdWork);
+                if (item != null)
                 {
                     item.Finish = works[i].DateTime;
                 }
@@ -85,7 +85,7 @@ namespace Atom.Models2
                     if (it.Finish < _date)
                     {
                         works.Add(it);
-                    }                    
+                    }
                 }
             }
             return works;
@@ -93,7 +93,7 @@ namespace Atom.Models2
 
         public DateTime GetMinBound(List<Work> works)
         {
-            var min = works.Min(x=>x.Start);
+            var min = works.Min(x => x.Start);
             return min;
         }
 
@@ -102,35 +102,5 @@ namespace Atom.Models2
             var max = works.Min(x => x.Finish);
             return max;
         }
-
-        //public Timetable NewTimetable()
-        //{
-        //    var w = GetBadWorks();
-        //    var min = GetMinBound(w);
-        //    var interval = _date - min;
-        //    var max = GetMaxBound(w);
-        //    var sum = Summary(w, interval);
-        //}
-
-        //public double Summary(List<Work> w, TimeSpan min)
-        //{
-        //    for(var i=0; i<w.Count; i++)
-        //    {
-        //        w[i].Start = w[i].Start + min;
-        //    }           
-        //}
-
-      
-    }
-
-    public class Group
-    {
-        public List<Work> Works { get; set; } = new List<Work>();
-    }
-
-    public class StageLink
-    {
-        public string IdStage { get; set; } 
-        public string IdWork { get; set; }
-    }
+    }  
 }

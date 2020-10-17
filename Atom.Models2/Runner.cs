@@ -7,24 +7,18 @@ namespace Atom.Models2
 {
     public class Runner
     {
-        public void Run(Project project)
+        public Timetable Run(Project project)
         {
-            while (true)
-            {
-                var Timetables = new List<Timetable>();
-                var t = project.CreteTimetable();
-                Timetables.Add(t);
+            var Timetables = new List<Timetable>();
+            var t = project.CreteTimetable();
+            Timetables.Add(t);
 
+            // Создаем решатель (генетического алгоритм).
+            var solver = new Solver(); 
+            // Запуск генетического алгоритм.
+            var res = solver.Solve(t, new DateTime(2020, 6, 5)); 
 
-                var solver = new Solver(); //создаем решатель
-
-
-                
-
-
-                var res = solver.Solve(t, new DateTime(2020, 6, 5));
-                Console.ReadLine();
-            }
+            return res;
         }
 
 

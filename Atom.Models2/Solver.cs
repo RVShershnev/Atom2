@@ -7,21 +7,36 @@ using static Atom.Models2.Timetable;
 
 namespace Atom.Models2
 {
+    public class SolverOption
+    {
+        public int MaxIterations { get; set;} = 1000;
+        public int PopulationCount { get; set; } = 100; //должно делиться на 4
+    }
     public class Solver
     {
-        public int MaxIterations = 1000;
-        public int PopulationCount = 100;//должно делиться на 4
+        SolverOption _solverOption;
 
-     
         public List<Func<Timetable, double>> FitnessFunctions = new List<Func<Timetable, double>>();
-        public Timetable Solve(Timetable pairs, DateTime now)
+        public Timetable Solve(Timetable Etalon, DateTime now, SolverOption solverOption = null)
         {
-            bool flag = false;                   
-            var pop = new Population(pairs);
+            if (solverOption == null)
+            {
+                _solverOption = new SolverOption();
+            }
+            else
+            {
+                _solverOption = solverOption;
+            }
+
+            bool flag = false;
+
+       
+            var pop = new Population(Etalon);
+            
             if (pop.Count == 0)
                 throw new Exception("Can not create any plan");
             
-            var count = MaxIterations;
+            var count = _solverOption.MaxIterations;
             while (count-- > 0)
             {
                 //считаем фитнесс функцию для всех планов
@@ -29,7 +44,7 @@ namespace Atom.Models2
                 //pop = neww.ToList();
                 //pop.Sort(new TimetableComp());
                 //сортруем популяцию по фитнесс функции
-                if (pop[0].Cost == 0)
+                if (neww[0].Cost == 0)
                     return pop[0];
                 //отбираем 25% лучших планов
                 if (flag)
@@ -53,10 +68,14 @@ namespace Atom.Models2
     }
     public class Population : List<Timetable>
     {
-        public Population(Timetable parent)
+        public static Timetable _etalon;
+        public Population(Timetable etalon)
         {
+            _etalon = etalon;
             var t = new Timetable();
-            this.Add(t.Init(parent));
+            this.Add(t.Init(_etalon));
+            this.Add(t.Init(_etalon));
+            this.Add(t.Init(_etalon));
         }
 
         public bool AddChildOfParent(Timetable parent)
