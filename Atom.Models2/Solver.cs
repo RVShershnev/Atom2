@@ -72,10 +72,12 @@ namespace Atom.Models2
         public Population(Timetable etalon)
         {
             _etalon = etalon;
-            var t = new Timetable();
-            this.Add(t.Init(_etalon));
-            this.Add(t.Init(_etalon));
-            this.Add(t.Init(_etalon));
+            var t1 = new Timetable();
+            this.Add(t1.Init(_etalon));
+            var t2 = new Timetable();
+            this.Add(t2.Init(_etalon)); 
+            var t3 = new Timetable();
+            this.Add(t3.Init(_etalon));
         }
 
         public bool AddChildOfParent(Timetable parent)
