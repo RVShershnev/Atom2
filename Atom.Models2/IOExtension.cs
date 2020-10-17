@@ -14,18 +14,19 @@ namespace Atom.Models2
         {
             using (StreamWriter sw = new StreamWriter(path))
             {
-                sw.WriteLine($"Id;Name;PriceEarlier;PriceLate;PriceDurationChanged;Start;Duration;DurationMin;Finish");
                 sw.WriteLine("Stages");
+                sw.WriteLine($"Id;Name;PriceEarlier;PriceLate;PriceDurationChanged;Start;Duration;DurationMin;Finish");                
                 for (var i = 0; i < project.Stages.Count; i++)
                 {
                     sw.WriteLine($"{project.Stages[i].Id};{project.Stages[i].Name};{project.Stages[i].PriceEarlier};{project.Stages[i].PriceLate};{project.Stages[i].PriceDurationChanged};{project.Stages[i].Start};{project.Stages[i].Duration};{project.Stages[i].DurationMin};{project.Stages[i].Finish}");
                 }
                 sw.WriteLine("Works");
+                sw.WriteLine($"Id;Name;StageId;PriceEarlier;PriceLate;PriceDurationChanged;Start;Duration;DurationMin;Finish");
                 for (var i = 0; i < project.Groups.Count; i++)
                 {
                     for (var j = 0; j < project.Groups[i].Works.Count; j++)
                     {
-                        sw.WriteLine($"{project.Groups[i].Works[j].Id};{project.Groups[i].Works[j].Name};{project.Stages[i].PriceEarlier};{project.Stages[i].PriceLate};{project.Stages[i].PriceDurationChanged};{project.Groups[i].Works[j].Start};{project.Groups[i].Works[j].Duration};{project.Stages[i].DurationMin};{project.Groups[i].Works[j].Finish}");
+                        sw.WriteLine($"{project.Groups[i].Works[j].Id};{project.Groups[i].Works[j].Name};{project.Groups[i].Works[j].StageId};{project.Works[i].PriceEarlier};{project.Works[i].PriceLate};{project.Works[i].PriceDurationChanged};{project.Groups[i].Works[j].Start};{project.Groups[i].Works[j].Duration};{project.Works[i].DurationMin};{project.Groups[i].Works[j].Finish}");
                     }
                 }
                 sw.Close();

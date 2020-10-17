@@ -34,11 +34,23 @@ namespace Atom.ProjectGenerator2
             project1.RandomCompleteWorks(t);
             project1.ExportTimetable("test.txt");
 
-            var BigProject = random.NextProject(2, 15, 200000);
+            //var JsonSerializerSettings = new JsonSerializerSettings()
+            //{
+            //    MetadataPropertyHandling = MetadataPropertyHandling.ReadAhead,
+            //    NullValueHandling = NullValueHandling.Include,
+            //    StringEscapeHandling = StringEscapeHandling.Default,
+            //    ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+            //};
+            //var ser = JsonConvert.SerializeObject(project, JsonSerializerSettings);
+            //Console.WriteLine("json сериализация");
+            //File.WriteAllText("1.txt", ser);
+
+
+            //var BigProject = random.NextProject(2, 15, 200000);
             
-            var q = new DateTime(2020, 2, 1);
-            BigProject.RandomCompleteWorks(t);    
-            BigProject.ExportTimetable("BigTable.txt");
+            //var q = new DateTime(2020, 2, 1);
+            //BigProject.RandomCompleteWorks(t);    
+            //BigProject.ExportTimetable("BigTable.txt");
 
             Runner r = new Runner();
             var newTimetable = r.Run(project1);

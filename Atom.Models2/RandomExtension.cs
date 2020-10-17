@@ -23,28 +23,6 @@ namespace Atom.Models2
         public static Project NextProject(this Random random, int countgroup, int countstage, int countwork)
         {
             Project proj = new Project();
-            for(var i =0; i< countgroup; i++)
-            {
-                var gr = new Group();
-                for (var j = 0; j < countwork; j++)
-                {
-                    var day = random.Next(1, 28);
-                    var month = random.Next(1, 12);
-                    var w = new Work()
-                    {
-                        Id = Guid.NewGuid().ToString(),
-                        Start = new DateTime(2020, month, day),
-                        Duration = random.Next(0, 30),                     
-                        Name = Guid.NewGuid().ToString().Substring(0,5)+"...",
-                        PriceEarlier = random.Next(-1, 50),
-                        PriceDurationChanged = random.Next(-1, 50),
-                        PriceLate = random.Next(-1, 50)
-                    };                
-                    w.DurationMin = random.Next(0, (int)w.Duration);               
-                    gr.Works.Add(w);
-                }
-                proj.Groups.Add(gr);
-            }
             for (var i = 0; i < countstage; i++)
             {
                 var day = random.Next(1, 28);
@@ -62,6 +40,29 @@ namespace Atom.Models2
                 gr.DurationMin = random.Next(0, (int)gr.Duration);
                 proj.Stages.Add(gr);
             }
+            for (var i =0; i< countgroup; i++)
+            {
+                var gr = new Group();
+                for (var j = 0; j < countwork; j++)
+                {
+                    var day = random.Next(1, 28);
+                    var month = random.Next(1, 12);
+                    var w = new Work()
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        Start = new DateTime(2020, month, day),
+                        Duration = random.Next(0, 30),                     
+                        Name = Guid.NewGuid().ToString().Substring(0,5)+"...",
+                        PriceEarlier = random.Next(-1, 50),
+                        PriceDurationChanged = random.Next(-1, 50),
+                        PriceLate = random.Next(-1, 50)
+                    };                
+                    w.DurationMin = random.Next(0, (int)w.Duration);
+                    w.StageId = proj.Stages[random.Next(0, countstage)].Id;
+                    gr.Works.Add(w);
+                }
+                proj.Groups.Add(gr);
+            }     
             return proj;
         }
 
