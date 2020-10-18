@@ -27,6 +27,8 @@ namespace Atom.Models2
         [JsonProperty("progress_min")]
         public long DurationMin { get; set; }
 
+        
+
         #region Стоимость
 
         /// <summary>

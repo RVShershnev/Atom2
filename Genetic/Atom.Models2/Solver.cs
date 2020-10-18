@@ -9,8 +9,7 @@ namespace Atom.Models2
 {
     public class SolverOption
     {
-        public int MaxIterations { get; set;} = 1000;
-        public int PopulationCount { get; set; } = 100; //должно делиться на 4
+        public int MaxIterations { get; set;} = 1000;     
     }
     public class Solver
     {
@@ -19,6 +18,7 @@ namespace Atom.Models2
         public List<Func<Timetable, double>> FitnessFunctions = new List<Func<Timetable, double>>();
         public Timetable Solve(Timetable Etalon, DateTime now, DateTime frozen, SolverOption solverOption = null)
         {
+          
             if (solverOption == null)
             {
                 _solverOption = new SolverOption();
@@ -40,31 +40,43 @@ namespace Atom.Models2
             var count = _solverOption.MaxIterations;
             while (count-- > 0)
             {
-                pop.ForEach(x =>
+                for (var i = 0; i < pop.Count; i++)
                 {
-                    x.Cost = Timetable.Fitness(Population.Etalon, x, frozen);
-                });
-                //считаем фитнесс функцию для всех планов
+                    pop[i].Cost = Timetable.Fitness(Population.Etalon, pop[i], frozen);
+                    if (pop[i].Cost <= GeneticEnviroment.CostExtr)
+                    {
+                        Console.ForegroundColor = ConsoleColor.Yellow;
+                        Console.WriteLine($"Найден оптимальный план: {pop[i].Cost}");
+                        Console.ForegroundColor = ConsoleColor.White;
+                        return pop[i];
+                    }
+                    if (pop[i].Cost == double.MaxValue)
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine($"Новый мутант: {pop[i].Cost} - невозможный по условиям бизнес логики");
+                        Console.ForegroundColor = ConsoleColor.White;
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Новый мутант: {pop[i].Cost}");
+                    }
+
+                }
                 var neww = pop.OrderBy(x=>x.Cost).ToList();
-                //pop = neww.ToList();
-                //pop.Sort(new TimetableComp());
-                //сортруем популяцию по фитнесс функции
-                if (neww[0].Cost == 0)
-                    return pop[0];
-                //отбираем 25% лучших планов
+                pop.Clear();
+                pop.AddRange(neww);             
                 if (flag)
                 {
                     pop.RemoveAll(x => x.Cost == double.MaxValue);
-                    pop.RemoveRange(pop.Count / 4, pop.Count - pop.Count / 4);                   
+                    pop.RemoveRange(5, pop.Count - 5);                   
                 }
                 flag = true;
-                //от каждого создаем трех потомков с мутациями
-                var c = pop.Count;
-                for (int i = 0; i < c; i++)
+                var d = pop.Count;
+                for (int i = 0; i < d; i++)
                 {
-                    pop.AddChildOfParent(pop[i], now);
-                    pop.AddChildOfParent(pop[i], now);
-                    pop.AddChildOfParent(pop[i], now);
+                    pop.AddChild(pop[i], now);
+                    pop.AddChild(pop[i], now);
+                    pop.AddChild(pop[i], now);            
                 }
             }
             return pop[0];
@@ -75,16 +87,18 @@ namespace Atom.Models2
     {
         public static Timetable Etalon { get; set; } = new Timetable();
         public Population(Timetable parent, DateTime now)
-        {           
-            var t1 = new Timetable();
-            this.Add(t1.Init(parent, now));
-            var t2 = new Timetable();
-            this.Add(t2.Init(parent, now)); 
-            var t3 = new Timetable();
-            this.Add(t3.Init(parent, now));
+        {
+            this.Add(new Timetable().Init(parent, now));
+            this.Add(new Timetable().Init(parent, now));
+            this.Add(new Timetable().Init(parent, now));
+            this.Add(new Timetable().Init(parent, now));
+            this.Add(new Timetable().Init(parent, now));
+            this.Add(new Timetable().Init(parent, now));
+            this.Add(new Timetable().Init(parent, now));
+            this.Add(new Timetable().Init(parent, now));
         }
 
-        public bool AddChildOfParent(Timetable parent, DateTime now)
+        public bool AddChild(Timetable parent, DateTime now)
         {
             int maxIterations = 10;
             do
@@ -96,4 +110,6 @@ namespace Atom.Models2
             return false;
         }
     }
+
+    
 }

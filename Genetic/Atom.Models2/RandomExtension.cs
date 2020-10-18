@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 
 namespace Atom.Models2
@@ -26,7 +28,7 @@ namespace Atom.Models2
             for (var i = 0; i < countstage; i++)
             {
                 var day = random.Next(1, 28);
-                var month = random.Next(1, 12);
+                var month = random.Next(1, 3);
                 var gr = new Stage()
                 {
                     Id = Guid.NewGuid().ToString(),
@@ -46,7 +48,7 @@ namespace Atom.Models2
                 for (var j = 0; j < countwork; j++)
                 {
                     var day = random.Next(1, 28);
-                    var month = random.Next(1, 12);
+                    var month = random.Next(1, 3);
                     var w = new Work()
                     {
                         Id = Guid.NewGuid().ToString(),
@@ -57,8 +59,8 @@ namespace Atom.Models2
                         PriceDurationChanged = random.Next(-1, 50),
                         PriceLate = random.Next(-1, 50)
                     };                
-                    w.DurationMin = random.Next(0, (int)w.Duration);
-                    w.StageId = proj.Stages[random.Next(0, countstage)].Id;
+                    w.DurationMin = random.Next(0, (int)w.Duration);                  
+                    w.StageId = proj.Stages[random.Next(0, countstage)].Id;                  
                     gr.Works.Add(w);
                 }
                 proj.Groups.Add(gr);

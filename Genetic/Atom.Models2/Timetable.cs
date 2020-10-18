@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Text.Json.Serialization;
+using System.Timers;
 
 namespace Atom.Models2
 {
@@ -20,56 +23,63 @@ namespace Atom.Models2
           
         public static double Fitness(Timetable etalon, Timetable mutation, DateTime FrozenDate)
         {
-            var sum = 0.0d;         
-            for(var i=0; i< etalon.Works.Count(); i++)
+            var sum = 0.0d;      
+            for (var i=0; i< etalon.Works.Count(); i++)
             {
+
                 var eta = etalon.Works[i];
                 var muta = mutation.Works.SingleOrDefault(x=>x.Id == etalon.Works[i].Id);
+                
                 if(muta != null)
                 {
-                    // Штраф за сдвиг вперед
-                    if(eta.Start < muta.Start)
-                    {                       
-                        if (eta.PriceEarlier <= -1)  // Штраф за невозможность действия
-                        {
-                            return double.MaxValue;
-                        }
-                        else
-                        {
-                            var count = (muta.Start - eta.Start).Days;
-                            sum += Math.Abs(count * eta.PriceLate);
-                        }                       
+                    if(muta.Finish == new DateTime() && eta.Start == muta.Start && eta.Duration == muta.Duration )
+                    {
+                        sum  +=1;
                     }
-                    // Штраф за сдвиг назад
-                    if (eta.Start > muta.Start)
-                    {                                    
-                        if (eta.PriceLate <= -1) // Штраф за невозможность действия
+                        // Штраф за сдвиг вперед
+                        if (eta.Start < muta.Start)
                         {
-                            return double.MaxValue;
+                            if (eta.PriceEarlier <= -1)  // Штраф за невозможность действия
+                            {
+                                return double.MaxValue;
+                            }
+                            else
+                            {
+                                var count = (muta.Start - eta.Start).Days;
+                                sum += Math.Abs(count * eta.PriceLate);
+                            }
                         }
-                        else
+                        // Штраф за сдвиг назад
+                        if (eta.Start > muta.Start)
                         {
-                            var count = (muta.Start - eta.Start).Days;
-                            sum += Math.Abs(count * eta.PriceLate);
+                            if (eta.PriceLate <= -1) // Штраф за невозможность действия
+                            {
+                                return double.MaxValue;
+                            }
+                            else
+                            {
+                                var count = (muta.Start - eta.Start).Days;
+                                sum += Math.Abs(count * eta.PriceLate);
+                            }
                         }
-                    }
-                    // Штраф за изменение времени
-                    if (eta.Duration != muta.Duration)
-                    {                        
-                        if (eta.PriceDurationChanged <= -1)
+                        // Штраф за изменение времени
+                        if (eta.Duration != muta.Duration)
                         {
-                            return double.MaxValue;
+                            if (eta.PriceDurationChanged <= -1)
+                            {
+                                return double.MaxValue;
+                            }
+                            if (eta.DurationMin > muta.Duration)
+                            {
+                                return double.MaxValue;
+                            }
+                            else
+                            {
+                                var count = Math.Abs(muta.Duration - eta.Duration);
+                                sum += Math.Abs(count * eta.PriceDurationChanged);
+                            }
                         }
-                        if (eta.DurationMin > muta.Duration)
-                        {
-                            return double.MaxValue;
-                        }
-                        else
-                        {
-                            var count = Math.Abs(muta.Duration - eta.Duration);
-                            sum += Math.Abs(count * eta.PriceDurationChanged);
-                        }
-                    }                       
+                    
                 }
             }
             for (var i = 0; i < etalon.Stages.Count(); i++)
@@ -131,7 +141,7 @@ namespace Atom.Models2
         /// </summary>
         public Timetable Init(Timetable parent, DateTime dateTimeEnviroment)
         {
-            //копируем предка
+            // Клонирование.
             for (int i = 0; i < parent.Works.Count; i++)                
                 this.Works.Add((Work)parent.Works[i].Clone());
 
@@ -145,30 +155,59 @@ namespace Atom.Models2
 
             var mutateStages = this.Stages.Where(x => x.Finish != new DateTime() || x.Start > dateTimeEnviroment).ToList();
 
+            Loop: 
+
             var randomWork = Random.Next(0, mutateWorks.Count());
-            var randomStages = Random.Next(0, Stages.Count());
+            var randomStages = Random.Next(0, mutateStages.Count());
+       
             var destvie = Random.Next(0, 6);
-                       
-            switch(destvie)
+            try
             {
-                case 1:
-                    mutateWorks[randomWork].Start = mutateWorks[randomWork].Start.AddDays(1);
-                    break;
-                case 2:
-                    mutateWorks[randomWork].Start = mutateWorks[randomWork].Start - new TimeSpan(1,0,0,0);
-                    break;
-                case 3:
-                    mutateWorks[randomWork].Duration -= 1;
-                    break;
-                case 4:
-                    mutateStages[randomStages].Start = mutateStages[randomStages].Start.AddDays(1);
-                    break;
-                case 5:
-                    mutateStages[randomStages].Start = mutateStages[randomStages].Start - new TimeSpan(1, 0, 0, 0);
-                    break;
-                case 6:
-                    mutateStages[randomStages].Duration -= 1;
-                    break;
+                switch (destvie)
+                {
+                    case 1:
+                        //if (mutateWorks.Count != 0)
+
+                        mutateWorks[randomWork].Start = mutateWorks[randomWork].Start.AddDays(1);
+
+                        break;
+                    case 2:
+                        // if (mutateWorks.Count != 0)
+
+                        mutateWorks[randomWork].Start = mutateWorks[randomWork].Start - new TimeSpan(1, 0, 0, 0);
+
+                        break;
+                    case 3:
+                        // if (mutateWorks.Count != 0)
+
+                        mutateWorks[randomWork].Duration -= 1;
+
+                        break;
+                    case 4:
+                        // if (mutateStages.Count != 0)
+
+                        mutateStages[randomStages].Start = mutateStages[randomStages].Start.AddDays(1);
+
+                        break;
+                    case 5:
+                        // if (mutateStages.Count != 0)
+
+                        mutateStages[randomStages].Start = mutateStages[randomStages].Start - new TimeSpan(1, 0, 0, 0);
+
+                        break;
+                    case 6:
+                        // if (mutateStages.Count != 0)
+
+                        mutateStages[randomStages].Duration -= 1;
+
+                        break;
+                }
+            }
+            catch
+            {
+                // Плохой стиль, но что поделать, хакатон! 
+                // Ошибка связанна с неудобным определением областью определения класса Random.
+                goto Loop;
             }
             return this;
         }
@@ -201,7 +240,7 @@ namespace Atom.Models2
         }
 
         /// <summary>
-        /// Стоимость всех сдвигов
+        /// Стоимость всех сдвигов. Предполагается использовать для решения связанных задач.
         /// </summary>
         /// <param name="t1">старое расписание</param>
         /// <param name="t2">новое расписание</param>

@@ -58,14 +58,14 @@ namespace Atom.ProjectGenerator2
             //            {
             //               new Work()
             //               {
-                        
+
             //               }
-            //            }                       
+            //            }
             //        }
             //    }
 
 
-            //};
+            ////};
 
             //Console.WriteLine("Hello World!");
 
@@ -82,10 +82,16 @@ namespace Atom.ProjectGenerator2
             //Console.WriteLine(ser);
             //File.WriteAllText("1.txt", ser);
 
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.WriteLine("Нажмите любую кнопку");
+            Console.ReadLine();
 
+            GeneticEnviroment.CostExtr = 30;
+            GeneticEnviroment.Frozen = new TimeSpan(20,0,0,0) ;
+            GeneticEnviroment.NowDateTime = new DateTime(2020, 2, 1);
 
             var random = new Random();
-            var project1 = random.NextProject(2, 3, 5);
+            var project1 = random.NextProject(2, 5, 20);
             var Time = project1.CreteTimetable();
             var JsonSerializerSettings = new JsonSerializerSettings()
             {
@@ -94,30 +100,56 @@ namespace Atom.ProjectGenerator2
                 StringEscapeHandling = StringEscapeHandling.Default,
                 ReferenceLoopHandling = ReferenceLoopHandling.Ignore
             };
-            var ser = JsonConvert.SerializeObject(Time, JsonSerializerSettings);
-            Console.WriteLine("json сериализация");
+            var ser = JsonConvert.SerializeObject(Time, JsonSerializerSettings);      
             File.WriteAllText("Etalon.json", ser);
+            Console.WriteLine("json сериализация");
 
+            var ListWorkEtanol = Time.Works;
+            JsonSerializerSettings = new JsonSerializerSettings()
+            {
+                NullValueHandling = NullValueHandling.Include,
+                StringEscapeHandling = StringEscapeHandling.Default,
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+            };
+            ser = JsonConvert.SerializeObject(ListWorkEtanol, JsonSerializerSettings);
+            File.WriteAllText("EtalonWork.json", ser);
 
+            
             var t = new DateTime(2020, 2, 1);
             project1.RandomCompleteWorks(t);
             project1.ExportTimetable("test.txt");
-
-            var s = project1.CreteTimetable();
-                        
+            var s = project1.CreteTimetable();                        
             var ser1 = JsonConvert.SerializeObject(s, JsonSerializerSettings);
             Console.WriteLine("json сериализация");
             File.WriteAllText("1.txt", ser1);
 
-
             //var BigProject = random.NextProject(2, 15, 200000);
-
             //var q = new DateTime(2020, 2, 1);
             //BigProject.RandomCompleteWorks(t);    
             //BigProject.ExportTimetable("BigTable.txt");
 
             Runner r = new Runner();
-            var newTimetable = r.Run(project1);
+            var newTimetable = r.Run(project1);       
+            JsonSerializerSettings = new JsonSerializerSettings()
+            {
+                MetadataPropertyHandling = MetadataPropertyHandling.ReadAhead,
+                NullValueHandling = NullValueHandling.Include,
+                StringEscapeHandling = StringEscapeHandling.Default,
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+            };
+            ser = JsonConvert.SerializeObject(newTimetable, JsonSerializerSettings);           
+            File.WriteAllText("Optimal.json", ser);
+            Console.WriteLine("json сериализация");
+
+            var ListWorkOptimum = newTimetable.Works;
+            JsonSerializerSettings = new JsonSerializerSettings()
+            {              
+                NullValueHandling = NullValueHandling.Include,
+                StringEscapeHandling = StringEscapeHandling.Default,
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+            };
+            ser = JsonConvert.SerializeObject(ListWorkOptimum, JsonSerializerSettings);
+            File.WriteAllText("OptimalWork.json", ser);
         }
     }
 }
