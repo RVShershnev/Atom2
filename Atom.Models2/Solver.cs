@@ -17,7 +17,7 @@ namespace Atom.Models2
         SolverOption _solverOption;
 
         public List<Func<Timetable, double>> FitnessFunctions = new List<Func<Timetable, double>>();
-        public Timetable Solve(Timetable Etalon, DateTime now, SolverOption solverOption = null)
+        public Timetable Solve(Timetable Etalon, DateTime now, DateTime frozen, SolverOption solverOption = null)
         {
             if (solverOption == null)
             {
@@ -30,15 +30,20 @@ namespace Atom.Models2
 
             bool flag = false;
 
-       
-            var pop = new Population(Etalon);
+            Population.Etalon = Etalon;
+            var pop = new Population(Etalon, now);
             
+
             if (pop.Count == 0)
                 throw new Exception("Can not create any plan");
             
             var count = _solverOption.MaxIterations;
             while (count-- > 0)
             {
+                pop.ForEach(x =>
+                {
+                    x.Cost = Timetable.Fitness(Population.Etalon, x, frozen);
+                });
                 //считаем фитнесс функцию для всех планов
                 var neww = pop.OrderBy(x=>x.Cost).ToList();
                 //pop = neww.ToList();
@@ -57,9 +62,9 @@ namespace Atom.Models2
                 var c = pop.Count;
                 for (int i = 0; i < c; i++)
                 {
-                    pop.AddChildOfParent(pop[i]);
-                    pop.AddChildOfParent(pop[i]);
-                    pop.AddChildOfParent(pop[i]);
+                    pop.AddChildOfParent(pop[i], now);
+                    pop.AddChildOfParent(pop[i], now);
+                    pop.AddChildOfParent(pop[i], now);
                 }
             }
             return pop[0];
@@ -68,25 +73,24 @@ namespace Atom.Models2
     }
     public class Population : List<Timetable>
     {
-        public static Timetable _etalon;
-        public Population(Timetable etalon)
-        {
-            _etalon = etalon;
+        public static Timetable Etalon { get; set; } = new Timetable();
+        public Population(Timetable parent, DateTime now)
+        {           
             var t1 = new Timetable();
-            this.Add(t1.Init(_etalon));
+            this.Add(t1.Init(parent, now));
             var t2 = new Timetable();
-            this.Add(t2.Init(_etalon)); 
+            this.Add(t2.Init(parent, now)); 
             var t3 = new Timetable();
-            this.Add(t3.Init(_etalon));
+            this.Add(t3.Init(parent, now));
         }
 
-        public bool AddChildOfParent(Timetable parent)
+        public bool AddChildOfParent(Timetable parent, DateTime now)
         {
             int maxIterations = 10;
             do
             {
                 var plan = new Timetable();
-                plan.Init(parent);
+                plan.Init(parent, now);
                 this.Add(plan);
             } while (maxIterations-- > 0);
             return false;

@@ -16,7 +16,7 @@ namespace Atom.Models2
             // Создаем решатель (генетического алгоритм).
             var solver = new Solver(); 
             // Запуск генетического алгоритм.
-            var res = solver.Solve(t, new DateTime(2020, 6, 5)); 
+            var res = solver.Solve(t, new DateTime(2020, 6, 5), new DateTime(2020, 7,5)); 
 
             return res;
         }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 
 namespace Atom.Models2
 {
@@ -12,113 +13,123 @@ namespace Atom.Models2
         public List<Work> Works { get; set; } = new List<Work>();
         public List<Stage> Stages { get; set; } = new List<Stage>();
         public Dictionary<Stage, Work> LinkStageWork { get; set; } = new Dictionary<Stage, Work>();
-
-        public DateTime ActualDateTime { get; set; } 
-        public double Cost { get; set; }
-
-        public Random Random = new Random();
-        public double ChangeStageEarlier(Stage stage, int count)
+        public DateTime ActualDateTime { get; set; }
+        public double Cost { get; set; } = double.MaxValue;
+                
+        Random Random = new Random();
+          
+        public static double Fitness(Timetable etalon, Timetable mutation, DateTime FrozenDate)
         {
-            if (stage.PriceEarlier <= -1)
+            var sum = 0.0d;         
+            for(var i=0; i< etalon.Works.Count(); i++)
             {
-                return double.MaxValue;
-            }
-            else
-            {
-                double sum = count * stage.PriceEarlier;
-                for(var i =0; i < LinkStageWork.Count; i++)
+                var eta = etalon.Works[i];
+                var muta = mutation.Works.SingleOrDefault(x=>x.Id == etalon.Works[i].Id);
+                if(muta != null)
                 {
-                    var date = stage.Start - new TimeSpan(count, 0, 0, 0);
-                    var Links = LinkStageWork.Where(x => x.Key.Id == stage.Id).ToList();
-                    for(var j =0; j< Links.Count; j++)
+                    // Штраф за сдвиг вперед
+                    if(eta.Start < muta.Start)
+                    {                       
+                        if (eta.PriceEarlier <= -1)  // Штраф за невозможность действия
+                        {
+                            return double.MaxValue;
+                        }
+                        else
+                        {
+                            var count = (muta.Start - eta.Start).Days;
+                            sum += Math.Abs(count * eta.PriceLate);
+                        }                       
+                    }
+                    // Штраф за сдвиг назад
+                    if (eta.Start > muta.Start)
+                    {                                    
+                        if (eta.PriceLate <= -1) // Штраф за невозможность действия
+                        {
+                            return double.MaxValue;
+                        }
+                        else
+                        {
+                            var count = (muta.Start - eta.Start).Days;
+                            sum += Math.Abs(count * eta.PriceLate);
+                        }
+                    }
+                    // Штраф за изменение времени
+                    if (eta.Duration != muta.Duration)
+                    {                        
+                        if (eta.PriceDurationChanged <= -1)
+                        {
+                            return double.MaxValue;
+                        }
+                        if (eta.DurationMin > muta.Duration)
+                        {
+                            return double.MaxValue;
+                        }
+                        else
+                        {
+                            var count = Math.Abs(muta.Duration - eta.Duration);
+                            sum += Math.Abs(count * eta.PriceDurationChanged);
+                        }
+                    }                       
+                }
+            }
+            for (var i = 0; i < etalon.Stages.Count(); i++)
+            {
+                var eta = etalon.Stages[i];
+                var muta = mutation.Stages.SingleOrDefault(x => x.Id == etalon.Stages[i].Id);
+                if (muta != null)
+                {
+                    // Штраф за сдвиг вперед
+                    if (eta.Start < muta.Start)
                     {
-                        var len = (date - Links[j].Value.Start).Days;                   
-                        sum += ChangeWorkLate(Links[j].Value, len);                       
+                        if (eta.PriceEarlier <= -1)  // Штраф за невозможность действия
+                        {
+                            return double.MaxValue;
+                        }
+                        else
+                        {
+                            var count = (muta.Start - eta.Start).Days;
+                            sum += Math.Abs(count * eta.PriceLate);
+                        }
+                    }
+                    // Штраф за сдвиг назад
+                    if (eta.Start > muta.Start)
+                    {
+                        if (eta.PriceLate <= -1) // Штраф за невозможность действия
+                        {
+                            return double.MaxValue;
+                        }
+                        else
+                        {
+                            var count = (muta.Start - eta.Start).Days;
+                            sum += Math.Abs(count * eta.PriceLate);
+                        }
+                    }
+                    // Штраф за изменение времени
+                    if (eta.Duration != muta.Duration)
+                    {
+                        if (eta.PriceDurationChanged <= -1)
+                        {
+                            return double.MaxValue;
+                        }
+                        if (eta.DurationMin > muta.Duration)
+                        {
+                            return double.MaxValue;
+                        }
+                        else
+                        {
+                            var count = Math.Abs(muta.Duration - eta.Duration);
+                            sum += Math.Abs(count * eta.PriceDurationChanged);
+                        }
                     }
                 }
-                Cost = sum;
-                return sum;
             }
-        }
-        public double ChangeStageLate(Stage stage, int count)
-        {
-            if (stage.PriceEarlier <= -1)
-            {
-                return double.MaxValue;
-            }
-            else
-            {
-                double sum = count * stage.PriceLate;
-                for (var i = 0; i < LinkStageWork.Count; i++)
-                {
-                    var date = stage.Start - new TimeSpan(count, 0, 0, 0);
-                    var Links = LinkStageWork.Where(x => x.Key.Id == stage.Id).ToList();
-                    for (var j = 0; j < Links.Count; j++)
-                    {
-                        var len = (date - Links[j].Value.Start).Days;
-                        sum += ChangeWorkEarlier(Links[j].Value, len);
-                    }
-                }
-                Cost = sum;
-                return sum;
-            }
-        }
-        public double ChangeStageDuration(Stage work, int count, DateTime now)
-        {
-            if (work.PriceDurationChanged <= -1)
-            {
-                return double.MaxValue;
-            }
-            if (work.DurationMin > (now - work.Start).Days - count)
-            {
-                return double.MaxValue;
-            }
-            Cost = count * work.PriceEarlier;
-            return count * work.PriceEarlier;
-        }
-
-
-        public double ChangeWorkEarlier(Work work, int count)
-        {
-            if(work.PriceEarlier <= -1)
-            {
-                return double.MaxValue;
-            }
-            else
-            {
-                Cost = count * work.PriceEarlier;
-                return count * work.PriceEarlier;
-            }
-        }
-        public double ChangeWorkLate(Work work, int count)
-        {
-            if (work.PriceEarlier <= -1)
-            {
-                return double.MaxValue;
-            }
-            else
-            {
-                Cost = count * work.PriceLate;
-                return count * work.PriceLate;
-            }
-        }
-        public double ChangeWorkDuration(Work work, int count, DateTime now)
-        {
-            if (work.PriceDurationChanged <= -1)
-            {
-                return double.MaxValue;
-            }
-            if(work.DurationMin > (now - work.Start).Days - count)
-            {
-                return double.MaxValue;
-            }          
-            return count * work.PriceEarlier;           
+            return sum;
         }
 
         /// <summary>
         /// Создание наследника с мутацией
         /// </summary>
-        public Timetable Init(Timetable parent)
+        public Timetable Init(Timetable parent, DateTime dateTimeEnviroment)
         {
             //копируем предка
             for (int i = 0; i < parent.Works.Count; i++)                
@@ -130,24 +141,35 @@ namespace Atom.Models2
             for (int i = 0; i < parent.LinkStageWork.Count; i++)
                 this.LinkStageWork.Add(parent.LinkStageWork.Keys.ElementAt(i), parent.LinkStageWork.Values.ElementAt(i));
 
-            var lenghtLate = Random.Next(0, 10);
-            var lenghtEarlier = Random.Next(0, 10);
-            var lenghtDuration = Random.Next(0, 10);
-            var lenghtWorkEarlier = Random.Next(0, 10);
-            var lenghtWorkLate = Random.Next(0, 10);
-            var lenghtWorkDuration = Random.Next(0, 10);
+            var mutateWorks = this.Works.Where(x=>x.Finish != new DateTime() || x.Start > dateTimeEnviroment).ToList();
 
-            var count1 = Random.Next(0, Works.Count);
-            var count2 = Random.Next(0, Stages.Count);
+            var mutateStages = this.Stages.Where(x => x.Finish != new DateTime() || x.Start > dateTimeEnviroment).ToList();
 
-            this.ChangeWorkLate(Works[count1], lenghtWorkLate);
-            this.ChangeWorkEarlier(Works[count1], lenghtWorkEarlier);
-            this.ChangeWorkDuration(Works[count1], lenghtWorkDuration, ActualDateTime);
-
-            this.ChangeStageDuration(Stages[count2], lenghtDuration, ActualDateTime);
-            this.ChangeStageEarlier(Stages[count2], lenghtEarlier);
-            this.ChangeStageLate(Stages[count2], lenghtLate);
-                      
+            var randomWork = Random.Next(0, mutateWorks.Count());
+            var randomStages = Random.Next(0, Stages.Count());
+            var destvie = Random.Next(0, 6);
+                       
+            switch(destvie)
+            {
+                case 1:
+                    mutateWorks[randomWork].Start = mutateWorks[randomWork].Start.AddDays(1);
+                    break;
+                case 2:
+                    mutateWorks[randomWork].Start = mutateWorks[randomWork].Start - new TimeSpan(1,0,0,0);
+                    break;
+                case 3:
+                    mutateWorks[randomWork].Duration -= 1;
+                    break;
+                case 4:
+                    mutateStages[randomStages].Start = mutateStages[randomStages].Start.AddDays(1);
+                    break;
+                case 5:
+                    mutateStages[randomStages].Start = mutateStages[randomStages].Start - new TimeSpan(1, 0, 0, 0);
+                    break;
+                case 6:
+                    mutateStages[randomStages].Duration -= 1;
+                    break;
+            }
             return this;
         }
 
@@ -164,8 +186,7 @@ namespace Atom.Models2
         }
 
         public class TimetableComp : IComparer<Timetable>
-        {
-            // Compares by Height, Length, and Width.
+        {           
             public int Compare(Timetable x, Timetable y)
             {
                 if (x.Cost.CompareTo(y.Cost) != 0)
@@ -226,6 +247,6 @@ namespace Atom.Models2
             }
             return cost;
         }
-
     }
+
 }

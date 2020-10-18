@@ -1,6 +1,7 @@
 ﻿using Atom.Models2;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using static Atom.Models2.RandomExtension;
 
@@ -10,6 +11,62 @@ namespace Atom.ProjectGenerator2
     {
         static void Main(string[] args)
         {
+            // Тестовый проект с хорошо определенными параметрами.
+            //var TestProject = new Project()
+            //{
+            //    Stages = new List<Stage>()
+            //    {
+            //        new Stage()
+            //        {
+            //            Id = "1",
+            //            Name = "Проектирование",
+            //            Duration = 90,
+            //            DurationMin = 60,
+            //            PriceEarlier = 50000,
+            //            PriceDurationChanged = 60000,
+            //            PriceLate = 70000,
+            //            Start = new DateTime(2020, 1, 1)
+            //        },
+            //        new Stage()
+            //        {
+            //            Id = "2",
+            //            Name = "Строительство",
+            //            Duration = 180,
+            //            DurationMin = 120,
+            //            PriceEarlier = 50000,
+            //            PriceDurationChanged = 60000,
+            //            PriceLate = 70000,
+            //            Start = new DateTime(2020, 1, 1)
+            //        },
+            //        new Stage()
+            //        {
+            //            Id = "3",
+            //            Name = "Испытания",
+            //            Duration = 90,
+            //            DurationMin = 60,
+            //            PriceEarlier = 50000,
+            //            PriceDurationChanged = 60000,
+            //            PriceLate = 70000,
+            //            Start = new DateTime(2020, 1, 1)
+            //        }
+            //    },
+            //    Groups = new List<Group>()
+            //    {
+            //        new Group()
+            //        {
+            //            Works = new List<Work>()
+            //            {
+            //               new Work()
+            //               {
+                        
+            //               }
+            //            }                       
+            //        }
+            //    }
+
+
+            //};
+
             //Console.WriteLine("Hello World!");
 
             //var project = random.NextProject(2,15,20000);
@@ -39,7 +96,7 @@ namespace Atom.ProjectGenerator2
             };
             var ser = JsonConvert.SerializeObject(Time, JsonSerializerSettings);
             Console.WriteLine("json сериализация");
-            File.WriteAllText("Etalon.txt", ser);
+            File.WriteAllText("Etalon.json", ser);
 
 
             var t = new DateTime(2020, 2, 1);
