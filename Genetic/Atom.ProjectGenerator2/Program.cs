@@ -5,12 +5,21 @@ using System.Collections.Generic;
 using System.IO;
 using static Atom.Models2.RandomExtension;
 
+using System.Security.Cryptography.X509Certificates;
+using Mono.Options;
+
 namespace Atom.ProjectGenerator2
 {
     class Program
     {
         static void Main(string[] args)
         {
+            string costMax = "30";
+         
+            var optionSet = new OptionSet
+            {
+                {"cm|costMax=", "costMax", x=>costMax = x }              
+            };
             // Тестовый проект с хорошо определенными параметрами.
             //var TestProject = new Project()
             //{
@@ -86,7 +95,7 @@ namespace Atom.ProjectGenerator2
             Console.WriteLine("Нажмите любую кнопку");
             Console.ReadLine();
 
-            GeneticEnviroment.CostExtr = 30;
+            GeneticEnviroment.CostExtr = Convert.ToDouble(costMax);
             GeneticEnviroment.Frozen = new TimeSpan(20,0,0,0) ;
             GeneticEnviroment.NowDateTime = new DateTime(2020, 2, 1);
 

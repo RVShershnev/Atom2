@@ -36,10 +36,11 @@ namespace Atom.Models2
 
             if (pop.Count == 0)
                 throw new Exception("Can not create any plan");
-            
+            int ss = 0;
             var count = _solverOption.MaxIterations;
             while (count-- > 0)
             {
+                Console.WriteLine($"Поколение: {ss++}");
                 for (var i = 0; i < pop.Count; i++)
                 {
                     pop[i].Cost = Timetable.Fitness(Population.Etalon, pop[i], frozen);
