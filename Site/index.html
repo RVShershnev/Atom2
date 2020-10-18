@@ -1,0 +1,106 @@
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="lib/frappe-gantt.css">
+    <link rel="stylesheet" href="lib/materialize.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <title>Document</title>
+</head>
+
+<body>
+    <div class="header">
+        <button data-target="modal1" class="btn modal-trigger">Управление задачами</button>
+        <div class="input-field">
+            <select id="visible-select">
+                <option value="Day">Показывать в днях</option>
+                <option value="Week">Показывать в неделях</option>
+                <option value="Month">Показывать в месяцах</option>
+            </select>
+        </div>
+
+        <div class="input-field">
+            <input id="json-edit" type="text" class="validate">
+            <label for="json-edit">Json</label>
+        </div>
+        <a href="#" id="parse" class="modal-close waves-effect waves-light btn">Распарсить</a>
+        <!-- <div class="input-field">
+            <select id="result-select">
+                <option value="1">Результат 1</option>
+                <option value="2">Результат 2</option>
+                <option value="3">Результат 3</option>
+            </select>
+        </div> -->
+    </div>
+
+    <svg id="gantt"></svg>
+    <!-- <div id="gantt-diagramm"></div> -->
+    <!-- <div class="container">Lorem ipsum dolor sit amet consectetur adipisicing elit. Atque labore dicta, expedita quasi tempora maiores. Molestiae a incidunt, inventore facilis, animi est mollitia odit nulla culpa molestias obcaecati atque id?</div> -->
+    <!-- <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script> -->
+
+    <div id="modal1" class="modal">
+        <div class="modal-content">
+            <div class="row">
+                <div class="col s12">
+                    <ul id="tabs" class="tabs">
+                        <li class="tab col s6"><a href="#edit-task">Изменить задачу</a></li>
+                        <li class="tab col s6"><a href="#add-task">Добавить задачу</a></li>
+                    </ul>
+                </div>
+                <div id="edit-task" class="col s12">
+                    <div class="input-field col s12">
+                        <select id="task-edit-select">
+                        </select>
+                        <label for="task-edit-select">Доступные задачи</label>
+                    </div>
+                    <div class="input-field col s6">
+                        <input id="name-edit" type="text" class="validate">
+                        <label for="name-edit">Название задачи</label>
+                    </div>
+                    <div class="input-field col s6">
+                        <input id="end-edit-date" type="text" class="datepicker">
+                        <label for="end-edit-date">Дата окончания</label>
+                    </div>
+                    <form action="#" class="col s12">
+                        <p class="range-field">
+                            <label for="progress-edit">Прогресс работ</label>
+                            <input type="range" id="progress-edit" min="0" max="100" />
+                        </p>
+                    </form>
+                </div>
+
+                <div id="add-task" class="col s12">
+                    <div class="input-field col s6">
+                        <input id="name-add" type="text" class="validate">
+                        <label for="name-add">Название задачи</label>
+                    </div>
+
+                    <div class="input-field col s6">
+                        <select id="task-add-select" multiple>
+                        </select>
+                        <label for="task-add-select">Пренадлежит</label>
+                    </div>
+                    <div class="input-field col s6">
+                        <input id="start-add-date" type="text" class="datepicker">
+                        <label for="start-add-date">Дата старта</label>
+                    </div>
+                    <div class="input-field col s6">
+                        <input id="end-add-date" type="text" class="datepicker">
+                        <label for="end-add-date">Дата окончания</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <a href="#!" id="closeModal" class="modal-close waves-effect waves-light btn">Сохранить</a>
+        </div>
+    </div>
+
+    <script src="lib/nouislider.js"></script>
+    <script src="lib/materialize.min.js"></script>
+    <script src="lib/frappe-gantt.js"></script>
+    <script src="js/main.js"></script>
+</body>
+
+</html>
